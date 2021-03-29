@@ -1,0 +1,11 @@
+https://medium.com/@jonolave/exploring-open-data-from-oslo-city-bike-67985a101268
+https://toddwschneider.com/posts/a-tale-of-twenty-two-million-citi-bikes-analyzing-the-nyc-bike-share-system/
+https://towardsdatascience.com/citi-bike-2017-analysis-efd298e6c22c
+https://urbandatacyclist.com/2017/12/28/data-mining-twin-cities-bike-share-program/
+https://towardsdatascience.com/visualizing-bike-mobility-in-london-using-interactive-maps-for-absolute-beginners-3b9f55ccb59
+https://github.com/vincentropy/python_cartography_tutorial
+https://www.linkedin.com/pulse/visualizing-nyc-bike-data-interactive-animated-maps-folium-toso/
+https://github.com/luisvalesilva/exploring_citibike
+
+værdata
+https://veret.gfi.uib.no/?action=download
