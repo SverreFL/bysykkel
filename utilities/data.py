@@ -2,20 +2,20 @@ import pandas as pd
 from pathlib import Path
 import os
 '''
-Målet er å få ut to dataframe:
+Lager dataframes:
 1. stations
 - har id, navn, lat, long
 - kun informasjon om stasjonene, helt uavhengig av antall reiser
 2. trips
 - df med multiindex der hver origin viser antall reiser og gj.snitt. tid til alle destination.
-- vil at den skal ha kolonne med geometri (LinePlot) for kobling mellom origin og destination.
-- tror jeg vil lagen egen for subset av reiser i helg og hverdag. 
+- øverste level i multiindex viser hvilket subset av observasjoner som er brukt (all, weekdays, weekend)
+3. num_per_hour for trips og arrivals
+- ..
 '''
-
-
 def load_data(start, end):
     '''
-    todo: add docstring
+    Laster inn alle .csv og filtrer på start og end i 'yyyy-mm-dd' format
+    Lager også variabel som indikerer om sykkelturen startet i helg
     '''
     path = Path('./data/bysykkel/')
     dfs = []
@@ -36,7 +36,7 @@ def parse_time_columns(df):
 
 def make_stations(df):
     '''
-    todo: add docstring
+    Lager dataframe som mapper station_id til navn, latitude og longitude
     '''
     cols = ['start_station_name', 'start_station_latitude', 'start_station_longitude']
     df_out = df.groupby('start_station_id')[cols].first()
@@ -46,56 +46,59 @@ def make_stations(df):
 
 def make_trips(df):
     '''
-    todo: add docstring. og clean opp koden. returnere dict med data frame
+    Lager dataframe med multiindex med tre nivåer:
+    1. hvilket subset av observasjoner som er brukt (all, weekdays, weekend)
+    2. hvilken stasjon sykkeltur startet fra
+    3. hvilken stasjon den sluttet
+
+    For kombinasjon (subset, start, slutt) er det kolonne med verdi for antall reiser og gjennomsnittlig reisetid i
+    sekunder. Har i tillegg kolonner der gjennomsnittlig reisetid blir representert med antall timer, minutter og sekunder.
     '''
     
     keys = ['all', 'weekdays', 'weekends']
-    out_dict = dict().fromkeys(keys)
+    dfs = []
     for key in keys:
+        df_sub = df.copy()
         if key == 'weekdays':
-            df_sub = df[df.weekend==False]
+            df_sub = df_sub[df_sub.weekend==False]
         elif key == 'weekends':
-            df_sub = df[df.weekend==True]
+            df_sub = df_sub[df_sub.weekend==True]
         else:
-            df_sub = df            
-        gb = df_sub.groupby('start_station_id')[['end_station_id', 'duration']]
-        station_ids = gb.groups.keys()
-        index = pd.MultiIndex.from_product([station_ids, station_ids],
-                                           names=['station_station_id', 'end_station_id'])
-
-        df_out = pd.DataFrame(index=index, columns=['count', 'avg_duration'])
-
-        for idx, group in gb:
-            df_out.loc[idx] = (group.groupby('end_station_id').
-                                     duration.
-                                     agg(['count','mean']).
-                                     reindex(index=station_ids). # padde nans for uobserverte
-                                     sort_index().
-                                     values) 
-        df_out.columns = ['count', 'avg_duration']
-        df_out['count'] = df_out['count'].fillna(0).astype(int)
+            df_sub = df_sub            
+        df_sub['subset'] = key
+        
+        out_index = pd.MultiIndex.from_product([df.start_station_id.unique()]*2)
+        df_out = (df_sub.groupby(['start_station_id', 'end_station_id']).
+                     duration.
+                     agg(['count', 'mean']).
+                     rename(columns={'count':'num_trips', 'mean':'avg_duration'}).
+                     reindex(out_index). # padde nans... må finnes smartere måte
+                     sort_index())
+        
+        # legge til subset som level 0 i multiindex
+        temp = out_index.to_frame()
+        temp.insert(0, 'subset', key)
+        out_index = pd.MultiIndex.from_frame(temp)
+        df_out = df_out.set_index(out_index)
+        
+        df_out['num_trips'] = df_out['num_trips'].fillna(0).astype(int)
 
         components = pd.to_timedelta(df_out['avg_duration'], 'seconds').dt.components
         df_out['hours'] = components.hours
         df_out['minutes'] = components.minutes
         df_out['seconds'] = components.seconds
-        out_dict[key] = df_out
-
-    return out_dict
+        
+        dfs.append(df_out)
+    return pd.concat(dfs)
 
 def make_arrivals(trips):
     '''
-    swap index og sorter
+    Samme utforming som trips. Har bare byttet levels i multiindex mellom opprinnelse og destinasjon.
     '''
-    keys = ['all', 'weekdays', 'weekends']
-    out_dict = dict().fromkeys(keys)
-    
-    for key in keys:
-        arrivals = trips[key].copy()
-        arrivals.index = arrivals.index.swaplevel()
-        arrivals = arrivals.sort_index()
-        out_dict[key] = arrivals
-    return out_dict
+    arrivals = trips.copy()
+    arrivals.index = arrivals.index.swaplevel(i=-2,j=-1)
+    arrivals = arrivals.sort_index()
+    return arrivals
 
 def make_num_per_hour(df, trips=True, start_hour=5):
     '''
@@ -103,39 +106,46 @@ def make_num_per_hour(df, trips=True, start_hour=5):
     '''
     df['day_of_year'] = df.started_at.dt.day_of_year
     keys = ['all', 'weekdays', 'weekends']
-    out_dict = dict().fromkeys(keys)
+    dfs = []
     
     for key in keys:
+        df_sub = df.copy()
         if key == 'weekdays':
-            df_sub = df[df.weekend==False]
+            df_sub = df_sub[df_sub.weekend==False]
         elif key == 'weekends':
-            df_sub = df[df.weekend==True]
+            df_sub = df_sub[df_sub.weekend==True]
         else:
-            df_sub = df
+            df_sub = df_sub
+        
+        num_days = len(df_sub['day_of_year'].unique())
+        df_sub['hour'] = df_sub['ended_at'].dt.hour
         
         if trips:
-            df_sub = df_sub.set_index('started_at')
-            gb = df_sub.groupby('start_station_id')
-        else:
-            df_sub = df_sub.set_index('ended_at')
-            gb = df_sub.groupby('end_station_id')
-
-        station_ids = gb.groups.keys()
-
-        num_days = len(df_sub['day_of_year'].unique())
-
-        index = pd.MultiIndex.from_product([station_ids, range(0,23+1)])
-        series_out = pd.Series(index=index, dtype='object')
-
-        for idx, group in gb:
-            series_out.loc[idx] = (group.groupby(group.index.hour).
+            df_out = (df_sub.groupby(['start_station_id', 'hour']).
                             duration. # vilkårlig kolonne
                             count().
                             div(num_days).
-                            reindex(range(0,23+1)).
                             sort_index().
-                            values)
-        series_out = series_out[series_out.index.get_level_values(1) >= start_hour]
-        series_out = series_out.fillna(0)
-        out_dict[key] = series_out
-    return out_dict
+                            to_frame().
+                            rename(columns={'duration':'avg_num_trips'}))
+        else:
+            df_out = (df_sub.groupby(['end_station_id', 'hour']).
+                            duration. # vilkårlig kolonne
+                            count().
+                            div(num_days).
+                            sort_index().
+                            to_frame().
+                            rename(columns={'duration':'avg_num_arrivals'}))
+            
+        
+        # legge til subset som level 0 i multiindex
+        df_out = df_out.reindex(pd.MultiIndex.from_product(df_out.index.levels))
+        temp = df_out.index.to_frame()
+        temp.insert(0, 'subset', key)
+        out_index = pd.MultiIndex.from_frame(temp)
+        df_out = df_out.set_index(out_index)
+        
+        df_out = df_out[df_out.index.get_level_values(-1) >= start_hour]
+        df_out.columns = ['avg_trips']
+        dfs.append(df_out)
+    return pd.concat(dfs)

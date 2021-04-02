@@ -1,108 +1,76 @@
+import matplotlib.pyplot as plt
+import numpy as np 
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np 
+import pandas as pd
+import warnings
+warnings.simplefilter("ignore")
+
 from pathlib import Path
-import numpy as np
-import geopandas as gpd
-from shapely.geometry import LineString
+path = Path('resources/data')
+stations = pd.read_pickle(path / 'stations')
 
-import osmnx as ox
-import networkx as nx
-
-from ipyleaflet import Map, Marker, CircleMarker, basemaps, Path, GeoData, Polyline
-from ipywidgets import HTML
-
-'''
-1. Initialiserer graf med endelig antall nodes samt kanter mellom nodes (merk: kantene har geometri med koordinater)
-2. For hver origin_id finner jeg korteste sti til hver destinastion_id. Gir meg route som er sekvens av node_ids
-3. Ikke tilstrekkelig å ha rette linjer mellom nodes i route; får ut alle koordinater til kanter mellom nodene i route
-4. Bruker sekvens av (x,y)-tupler til å lage LineString mellom origin og destination
-5. Vil large LineString objektet i trips_dataframen
-6. Tror også jeg vil ha marker-objekt i denne.. litt usikker på dette. Uansett, viktig at jeg bruker node i graf i stedet
-for koordinat slik at matcher med kartet mitt :-)
-'''
-
-# putt dette i funksjon
-graph = ox.graph_from_point([60.38819667374428, 5.328564137089416], dist=2500, network_type='bike')
-nodes, edges = ox.graph_to_gdfs(graph)
-edges = edges.sort_index()
-
-def make_geometries(stations, trips):
-    '''
-    Main funksjon. Samme index som trips. Hvis observert kobling så skal det ha geopandas objekt med lineplot, ellers nan.
-    '''
-    geometries = pd.Series(index=trips.index, dtype='object', name='geometry')
-    for origin_id in stations.index:
-        print(origin_id)
-        paths = make_paths(origin_id, stations, trips)
-        geometries.loc[origin_id] = paths.values
-    return geometries
-
-
-def make_paths(origin_id, stations, trips):
-    '''
-    Lager series med geopandas objekt fra gitt stasjons_id og til alle med observert kobling
-    '''
-    origin = stations.loc[origin_id, ['latitude', 'longitude']].to_list()
-    origin_node = ox.get_nearest_node(graph, origin) # id til node i graf
+def some_plot_function(current_station_id, current_subset, num_arrivals_per_hour,
+                        num_trips_per_hour, start_hour=5):
     
-    # må huske å lagre litt id og sånn her fordi jeg vil legge til geometri i dataframe til slutt... vil ha det i mine trips
-    destination_nodes = get_destination_nodes(origin_id, stations, trips) # series med (stasjons_id, node_id)
-    routes = get_routes(origin_node, destination_nodes) # series med (stasjons_id, [liste med node_id])
-    paths = get_paths(routes)
-    return paths
+   fig, ax = plt.subplots(figsize=(12,6))
+   if not current_station_id:
+      negative_data = num_trips_per_hour.loc[current_subset].groupby('hour').avg_trips.sum().values
+      positive_data = num_arrivals_per_hour.loc[current_subset].groupby('hour').avg_trips.sum().values
+   else:
+      negative_data = num_trips_per_hour.loc[(current_subset, current_station_id)].values.ravel()
+      positive_data = num_arrivals_per_hour.loc[(current_subset, current_station_id)].values.ravel()
+   max_value = get_max_value(current_station_id, num_arrivals_per_hour, num_trips_per_hour)
+
+   ax.bar(range(start_hour,23+1), positive_data, width=0.8,
+         color='tab:blue', label='turer til', align='edge')
+   ax.bar(range(start_hour,23+1), -negative_data, width=0.8,
+         color='tab:red', label='turer fra', align='edge')
+   if current_station_id:
+      ax.plot(range(start_hour,23+1), positive_data-negative_data, '-o', color='black')
     
+   ax = handle_xticks(ax, start_hour)
+   ax = handle_yticks(ax, current_station_id, max_value)
+   ax = handle_title(ax, current_station_id)
+   
+   ax.legend()
+   plt.close()
+   return fig
 
-def get_destination_nodes(origin_id, stations, trips):
-    '''
-    For gitt stasjons_id så looper den over alle statsjons_id til destinasjoner der folk har syklet til. 
-    Finner korresponderende id til nodes i grafen og returnerer en liste av disse.
+def get_max_value(current_station_id, num_arrivals_per_hour, num_trips_per_hour):
+   if not current_station_id:
+      max_trips = num_trips_per_hour.groupby(['subset','hour']).avg_trips.sum().max()
+      max_arrivals = num_arrivals_per_hour.groupby(['subset','hour']).avg_trips.sum().max()
+   else:
+      max_trips = num_arrivals_per_hour.loc[:,current_station_id,:].max().max()
+      max_arrivals = num_arrivals_per_hour.loc[:,current_station_id,:].max().max()
+   return max(max_trips, max_arrivals)
 
-    returnerer series med end_station_id og node
-    '''
-    destination_nodes = pd.Series(index=trips.loc[origin_id].index, dtype='object')
-    for idx in destination_nodes.index:
-        if idx == origin_id or trips.loc[(origin_id,idx)].isna().all(): # ta vekk rundtur og stasjoner som ikke har blitt kjørt til
-            continue
-        destination = stations.loc[idx,['latitude', 'longitude']].to_list()
-        destination_node = ox.get_nearest_node(graph, destination)
-        destination_nodes[idx] = destination_node
-    return destination_nodes
+def handle_xticks(ax, start_hour):
+   ax.set_xlim(start_hour-.25, 24)
+   ax.set_xticks(range(start_hour,23+1))
+   x_vals = ax.xaxis.get_ticklocs()
+   ax.set_xticklabels([str(x)+':00' for x in x_vals])
+   return ax
 
-def get_routes(origin_node, destination_nodes):
-    '''
-    Har en origin node og liste av destination nodes. Bruker algoritme til å finne sekvens av noder som kobler origin og ulike
-    destinations. Returnerer en liste av lister.
+def handle_yticks(ax, current_station_id, max_value):
+   buffer = 0.2*max_value
+   if current_station_id:
+      ax.set_ylim(-max_value-buffer, max_value+buffer)
+   else:
+      ax.set_ylim(-max_value-buffer, max_value+buffer) 
 
-    destination_nodes er series med (station_id, node_id)
-    '''
-    routes = pd.Series(index=destination_nodes.index, dtype='object')
-    for idx in routes.index:
-        if np.isnan(destination_nodes[idx]): # ta vekk stasjons_id uten korresponderende node_id fordi ikke blitt kjørt til
-            continue
-        destination_node = destination_nodes[idx]
-        routes[idx] = nx.shortest_path(graph, origin_node, destination_node, weight='distance')
-    return routes
+   yvals = ax.get_yticks()
+   if np.array([str(y).endswith('0') for y in yvals]).all():
+      ax.set_yticklabels([abs(int(y)) for y in yvals])
+   else:
+      ax.set_yticklabels([f'{abs(y):.2f}' for y in yvals])
+   return ax
 
-def get_paths(routes):
-    '''
-    routes er series 
-    '''
-    paths = pd.Series(index=routes.index, dtype='object')
-    for idx in paths.index:
-        if isinstance(routes[idx], list):
-            xs, ys = get_coords(routes[idx], edges)
-            paths[idx] = gpd.GeoDataFrame([LineString(zip(xs,ys))], columns=['geometry'])
-    return paths 
-
-def get_coords(route, edges=edges):
-    '''
-    Takes list of node_ids, returns tuple ([xs], [ys]) of coordinates for all points in geometry of vertices between all nodes
-    '''
-    x_coords = []
-    y_coords = []
-    for u, v in zip(route, route[1:]):
-        geom = edges.loc[(u,v)].geometry.values[0]
-        xs, ys = geom.xy
-        x_coords.extend(xs.tolist())
-        y_coords.extend(ys.tolist())
-    return x_coords, y_coords
-
+def handle_title(ax, current_station_id):
+   if current_station_id:
+      ax.set_title(f'{stations.loc[(current_station_id, "name")]}', fontsize=14)
+   else:
+      ax.set_title('Gjennomsnittlig antall turer per time', fontsize=14)
+   return ax

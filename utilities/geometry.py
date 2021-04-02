@@ -15,11 +15,6 @@ graph = ox.graph_from_point([60.38819667374428, 5.328564137089416], dist=3000, n
 nodes, edges = ox.graph_to_gdfs(graph)
 edges = edges.sort_index()
 
-# hacky løsning for å bli kvitt turer over ulrikken
-x, y = 5.365, 60.38 
-num_idx = np.argmin(np.abs(nodes.x-x) + np.abs(nodes.y-y))
-graph.remove_node(nodes.index[num_idx])
-
 def make_geometries(stations, trips):
     '''
     Main funksjon. Samme index som trips. Hvis observert kobling så skal det ha geopandas objekt med lineplot, ellers nan.
@@ -90,7 +85,7 @@ def get_routes(origin_node, destination_nodes):
             continue
         destination_node = destination_nodes[idx]
         try:
-            routes[idx] = nx.shortest_path(graph, origin_node, destination_node, weight='length')
+            routes[idx] = nx.shortest_path(graph, origin_node, destination_node, weight='length') # tror jeg må oppdatere networkx
         except:
             print(idx)
             print(origin_node)
