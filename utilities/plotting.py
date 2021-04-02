@@ -43,7 +43,7 @@ def get_max_value(current_station_id, num_arrivals_per_hour, num_trips_per_hour)
       max_trips = num_trips_per_hour.groupby(['subset','hour']).avg_trips.sum().max()
       max_arrivals = num_arrivals_per_hour.groupby(['subset','hour']).avg_trips.sum().max()
    else:
-      max_trips = num_arrivals_per_hour.loc[:,current_station_id,:].max().max()
+      max_trips = num_trips_per_hour.loc[:,current_station_id,:].max().max()
       max_arrivals = num_arrivals_per_hour.loc[:,current_station_id,:].max().max()
    return max(max_trips, max_arrivals)
 

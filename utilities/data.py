@@ -1,6 +1,3 @@
-import pandas as pd
-from pathlib import Path
-import os
 '''
 Lager dataframes:
 1. stations
@@ -10,8 +7,15 @@ Lager dataframes:
 - df med multiindex der hver origin viser antall reiser og gj.snitt. tid til alle destination.
 - øverste level i multiindex viser hvilket subset av observasjoner som er brukt (all, weekdays, weekend)
 3. num_per_hour for trips og arrivals
-- ..
+- df med multiindex med [(subset, station_id, hour)] som angir gjennomsnittlig antall turer til (arrivals) og fra (trips)
+for timen som begynner i hour for hver stasjon for hver subset.
+
+Lagrer disse til disk med .to_pickle()
 '''
+import pandas as pd
+from pathlib import Path
+import os
+
 def load_data(start, end):
     '''
     Laster inn alle .csv og filtrer på start og end i 'yyyy-mm-dd' format

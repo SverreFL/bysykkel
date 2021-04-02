@@ -1,3 +1,9 @@
+'''
+Gammel main. Kart med interaktive CircleMarkers på hver stasjon
+
+TODO: Bytt button til radiogroup for å velge subset av observasjon (alle, hverdag, helg). Kopiere ting fra new main. Forsøke
+å få operativ i jupyter i hvertfall..
+'''
 import pandas as pd
 import numpy as np
 
