@@ -28,7 +28,7 @@ def some_plot_function(current_station_id, current_subset, num_arrivals_per_hour
    ax.bar(range(start_hour,23+1), -negative_data, width=0.8,
          color='tab:red', label='turer fra', align='edge')
    if current_station_id:
-      ax.plot(range(start_hour,23+1), positive_data-negative_data, '-o', color='black')
+      ax.plot(np.arange(start_hour,23+1)+.4, positive_data-negative_data, '-o', color='black') # hacky sentrering ..
     
    ax = handle_xticks(ax, start_hour)
    ax = handle_yticks(ax, current_station_id, max_value)

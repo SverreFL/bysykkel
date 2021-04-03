@@ -99,7 +99,7 @@ def main(center=[60.388197,5.328564], zoom=13):
     radio_group = pn.widgets.RadioButtonGroup(options=['Alle dager', 'Hverdager', 'Helg'])
     radio_group.param.watch(callback_radio_group, 'value')
     
-    reset_button = pn.widgets.Button(name='Nullstill')
+    reset_button = pn.widgets.Button(name='Nullstill', width=100)
     reset_button.on_click(callback_reset_button)
 
     # Make map 
