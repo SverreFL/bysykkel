@@ -1,0 +1,1 @@
+web: panel serve --address="0.0.0.0" --port=$PORT bysykkel_app.ipynb --allow-websocket-origin=bysykkel-app.herokuapp.com
