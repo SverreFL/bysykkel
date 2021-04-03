@@ -11,7 +11,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import panel as pn
 from ipyleaflet import Map, Marker, Popup
-from ipywidgets import HTML
 
 from utilities.plotting import some_plot_function
 path = Path('resources/data')
@@ -73,28 +72,6 @@ def main(center=[60.388197,5.328564], zoom=13):
         plot_pane.object = some_plot_function(CURRENT_STATION_ID, CURRENT_SUBSET,
                              num_arrivals_per_hour, num_trips_per_hour)
     
-    def handle_mouseover(**kwargs):
-        '''
-        Depreciated
-        '''
-        # hacky løsning for å finne stasjonsid som er nærmest koordinat...
-        y, x = kwargs['coordinates']
-        num_idx = (abs(stations.latitude-y)).argmin()
-        station_id = stations.index[num_idx]
-
-        msg = HTML(value=stations.loc[station_id, 'name'])
-        popup = Popup(location=[y,x], child=msg)
-        # m.add_layer(popup)
-
-    def handle_mouseout(**kwargs):
-        '''
-        Depreciated
-        '''
-        # Må finnes smartere måter ...
-        for x in m.layers:
-            if isinstance(x,Popup):
-                m.remove_layer(x)   
-
     # widgets og deres callbacks
     radio_group = pn.widgets.RadioButtonGroup(options=['Alle dager', 'Hverdager', 'Helg'])
     radio_group.param.watch(callback_radio_group, 'value')

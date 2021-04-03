@@ -10,21 +10,15 @@ brotlipy==0.7.0
 certifi==2020.12.5
 cffi @ file:///D:/bld/cffi_1613414034267/work
 chardet @ file:///D:/bld/chardet_1610093644405/work
-click==7.1.2
-click-plugins==1.1.1
-cligj @ file:///home/conda/feedstock_root/build_artifacts/cligj_1605902088619/work
 colorama @ file:///home/conda/feedstock_root/build_artifacts/colorama_1602866480661/work
 cryptography @ file:///D:/bld/cryptography_1616851687511/work
 cycler==0.10.0
-decorator==4.4.2
+decorator @ file:///home/conda/feedstock_root/build_artifacts/decorator_1617391077937/work
 defusedxml @ file:///home/conda/feedstock_root/build_artifacts/defusedxml_1615232257335/work
 entrypoints @ file:///home/conda/feedstock_root/build_artifacts/entrypoints_1605121927639/work/dist/entrypoints-0.3-py2.py3-none-any.whl
-Fiona==1.8.18
-GDAL==3.2.2
-geopandas @ file:///home/conda/feedstock_root/build_artifacts/geopandas_1614589434390/work
 idna @ file:///home/conda/feedstock_root/build_artifacts/idna_1593328102638/work
-importlib-metadata @ file:///D:/bld/importlib-metadata_1616943490983/work
-ipykernel @ file:///D:/bld/ipykernel_1613853146220/work/dist/ipykernel-5.5.0-py3-none-any.whl
+importlib-metadata @ file:///D:/bld/importlib-metadata_1617117162514/work
+ipykernel @ file:///D:/bld/ipykernel_1617137234365/work/dist/ipykernel-5.5.3-py3-none-any.whl
 ipyleaflet @ file:///home/conda/feedstock_root/build_artifacts/ipyleaflet_1610840544566/work
 ipython @ file:///D:/bld/ipython_1616837008098/work
 ipython-genutils==0.2.0
@@ -33,22 +27,19 @@ ipywidgets-bokeh==1.0.2
 jedi @ file:///D:/bld/jedi_1610146981085/work
 Jinja2 @ file:///home/conda/feedstock_root/build_artifacts/jinja2_1612119311452/work
 jsonschema @ file:///home/conda/feedstock_root/build_artifacts/jsonschema_1614815863336/work
-jupyter @ file:///D:/bld/jupyter_1611872076438/work
 jupyter-client @ file:///home/conda/feedstock_root/build_artifacts/jupyter_client_1615693636836/work
-jupyter-console @ file:///home/conda/feedstock_root/build_artifacts/jupyter_console_1616560109969/work
 jupyter-core @ file:///D:/bld/jupyter_core_1612125436808/work
 jupyterlab-pygments @ file:///home/conda/feedstock_root/build_artifacts/jupyterlab_pygments_1601375948261/work
 jupyterlab-widgets @ file:///home/conda/feedstock_root/build_artifacts/jupyterlab_widgets_1609173350931/work
 kiwisolver @ file:///D:/bld/kiwisolver_1610099949969/work
 Markdown @ file:///home/conda/feedstock_root/build_artifacts/markdown_1614595805172/work
 MarkupSafe @ file:///D:/bld/markupsafe_1610127696479/work
-matplotlib @ file:///D:/bld/matplotlib-suite_1616782508958/work
+matplotlib @ file:///D:/bld/matplotlib-suite_1617212897530/work
 mistune @ file:///D:/bld/mistune_1610113018274/work
-munch==2.5.0
 nbclient @ file:///home/conda/feedstock_root/build_artifacts/nbclient_1614336084111/work
 nbconvert @ file:///D:/bld/nbconvert_1605401997174/work
-nbformat @ file:///home/conda/feedstock_root/build_artifacts/nbformat_1611005694671/work
-nest-asyncio @ file:///home/conda/feedstock_root/build_artifacts/nest-asyncio_1605195931949/work
+nbformat @ file:///home/conda/feedstock_root/build_artifacts/nbformat_1617383142101/work
+nest-asyncio @ file:///home/conda/feedstock_root/build_artifacts/nest-asyncio_1617163391303/work
 notebook @ file:///D:/bld/notebook_1616419450136/work
 numpy @ file:///D:/bld/numpy_1616933410625/work
 olefile @ file:///home/conda/feedstock_root/build_artifacts/olefile_1602866521163/work
@@ -57,17 +48,16 @@ pandas @ file:///D:/bld/pandas_1614698123791/work
 pandocfilters==1.4.2
 panel @ file:///home/conda/feedstock_root/build_artifacts/panel_1616165624384/work
 param @ file:///home/conda/feedstock_root/build_artifacts/param_1610122395674/work
-parso @ file:///home/conda/feedstock_root/build_artifacts/parso_1607618318316/work
+parso @ file:///home/conda/feedstock_root/build_artifacts/parso_1617148930513/work
 pickleshare @ file:///home/conda/feedstock_root/build_artifacts/pickleshare_1602536217715/work
 Pillow @ file:///D:/bld/pillow_1615244129446/work
-prometheus-client @ file:///home/conda/feedstock_root/build_artifacts/prometheus_client_1605543085815/work
+prometheus-client @ file:///home/conda/feedstock_root/build_artifacts/prometheus_client_1617387394212/work
 prompt-toolkit @ file:///home/conda/feedstock_root/build_artifacts/prompt-toolkit_1616432837031/work
 pycparser @ file:///home/conda/feedstock_root/build_artifacts/pycparser_1593275161868/work
 pyct==0.4.6
 Pygments @ file:///home/conda/feedstock_root/build_artifacts/pygments_1615243893546/work
 pyOpenSSL @ file:///home/conda/feedstock_root/build_artifacts/pyopenssl_1608055815057/work
 pyparsing==2.4.7
-pyproj @ file:///D:/bld/pyproj_1614935078486/work
 PyQt5==5.12.3
 PyQt5-sip==4.19.18
 PyQtChart==5.12
@@ -81,14 +71,11 @@ pywin32==300
 pywinpty @ file:///D:/bld/pywinpty_1602377770565/work
 PyYAML==5.4.1
 pyzmq @ file:///D:/bld/pyzmq_1614611876813/work
-qtconsole @ file:///home/conda/feedstock_root/build_artifacts/qtconsole_1615946127199/work
-QtPy==1.9.0
 requests @ file:///home/conda/feedstock_root/build_artifacts/requests_1608156231189/work
-Rtree @ file:///D:/bld/rtree_1610147304955/work
 Send2Trash==1.5.0
 Shapely==1.7.1
 six @ file:///home/conda/feedstock_root/build_artifacts/six_1590081179328/work
-terminado @ file:///D:/bld/terminado_1616072422022/work
+terminado @ file:///D:/bld/terminado_1617048806218/work
 testpath==0.4.4
 tornado @ file:///D:/bld/tornado_1610094878337/work
 tqdm @ file:///home/conda/feedstock_root/build_artifacts/tqdm_1614982742480/work
