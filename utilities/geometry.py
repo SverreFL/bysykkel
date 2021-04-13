@@ -1,3 +1,7 @@
+'''
+Lager series med samme index som trips de hver celle inneholder gdf med LineString... lagrer dette til disk.
+OBS: tar evigheter å kjøre
+'''
 import pandas as pd
 import numpy as np
 import geopandas as gpd
@@ -5,17 +9,17 @@ from shapely.geometry import LineString
 
 import osmnx as ox
 import networkx as nx
-'''
-Lager series med samme index som trips de hver celle inneholder gdf med LineString... lagrer dette til disk siden tar evigheter
-å kjøre
-'''
+
+stations = pd.read_pickle('resources/data/stations')
+trips = pd.read_pickle('resources/data/trips').loc['all']
 
 # putt dette i funksjon ? 
-graph = ox.graph_from_point([60.38819667374428, 5.328564137089416], dist=3000, network_type='walk')
+graph = ox.graph_from_point([60.38819667374428, 5.328564137089416], dist=3000, network_type='bike')
+graph = ox.utils_graph.get_largest_component(graph, strongly=True) # make strongly connected, fjerne de som er unreachable..
 nodes, edges = ox.graph_to_gdfs(graph)
 edges = edges.sort_index()
 
-def make_geometries(stations, trips):
+def make_geometries():
     '''
     Main funksjon. Samme index som trips. Hvis observert kobling så skal det ha geopandas objekt med lineplot, ellers nan.
     '''
@@ -85,9 +89,9 @@ def get_routes(origin_node, destination_nodes):
             continue
         destination_node = destination_nodes[idx]
         try:
-            routes[idx] = nx.shortest_path(graph, origin_node, destination_node, weight='length') # tror jeg må oppdatere networkx
+            routes[idx] = nx.shortest_path(graph, origin_node, destination_node, 'length') # tror jeg må oppdatere networkx
         except:
-            print(idx)
+            print(f' - feilet på {idx}')
             print(origin_node)
             print(destination_node)
             continue

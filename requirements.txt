@@ -7,3 +7,4 @@ matplotlib==3.3.4
 numpy==1.19.5
 pandas
 panel==0.11.1
+voila

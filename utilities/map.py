@@ -7,22 +7,31 @@ TODO: Bytt button til radiogroup for å velge subset av observasjon (alle, hverd
 import pandas as pd
 import numpy as np
 
-import panel as pn
+from pathlib import Path
 from ipyleaflet import Map, CircleMarker, GeoData, FullScreenControl, basemaps, Popup
 from ipywidgets import HTML
 from utilities.data import load_data, make_stations, make_trips, make_arrivals
 
+path = Path('resources/data')
+
+stations = pd.read_pickle(path / 'stations')
+trips = pd.read_pickle(path / 'trips')
+
+geometries = pd.read_pickle('resources/geometry/geometries')
 def main(stations, trips, center=[60.388197,5.328564], zoom=13):
     '''
     .....
     '''
-    # state variables.. knytte til widget.. tror det hadde vært bedre å jobbe med params
-    HAS_CLICKED = pn.widgets.IntInput(value=0) # vises ikke i gui
-    CURRENT_STATION_ID = pn.widgets.IntInput(value=0) # vises ikke i gui, bestemme gjennom klikk på kart
+    # laste inn data
+    stations = pd.read_pickle(path / 'stations')
+    trips_per_hour = pd.read_pickle(path / 'trips')
+
+    # globals
+    HAS_CLICKED = False # Tror ikke jeg trenger å holde oversikt over dette lenger
     CURRENT_SUBSET = 'all'
-    ALLDAYS = pn.widgets.Button(name='Alle dager')
-    WEEKDAYS = pn.widgets.Button(name='Hverdager')
-    WEEKENDS = pn.widgets.Button(name='Helg')
+    CURRENT_STATION_ID = None
+
+
     
     def callback_all(event):
         nonlocal CURRENT_SUBSET
