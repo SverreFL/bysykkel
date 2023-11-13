@@ -4,3 +4,4 @@ Kode for to webapper som visualiserer  [data](https://bergenbysykkel.no/apne-dat
 
 Jeg måtte bruke [Voilà](https://github.com/voila-dashboards/voila) til den ene applikasjonen fordi [Panel](https://panel.holoviz.org/) har begrenset støtte for [Ipyleaflet](https://ipyleaflet.readthedocs.io/en/latest/) som er brukt til å lage interaktivt kart i begge applikasjonene. 
 
+Test
