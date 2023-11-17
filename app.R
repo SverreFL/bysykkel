@@ -100,10 +100,10 @@ server <- function(input, output, session) {
         group = "stations",
         layerId = ~to
       ) %>% 
-      addPolylines(data=akt_paths$geometry,
+      addPolylines(data=akt_paths,
                    color = "black",
                    # opacity = ~num_trips_binned*0.1+0.5,
-                   # weight = ~num_trips_binned*0.2+0.3
+                   weight = ~num_trips_binned*0.2
                    ) 
   }) %>% 
     bindEvent(input$m_marker_click)
